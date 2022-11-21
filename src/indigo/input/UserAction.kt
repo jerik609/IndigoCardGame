@@ -4,7 +4,8 @@ enum class UserAction(private val actionText: String) {
     RESET("reset"),
     SHUFFLE("shuffle"),
     GET("get"),
-    EXIT("exit"), ;
+    EXIT("exit"),
+    PRINT_INTERNALS("int"), ;
 
     companion object {
 

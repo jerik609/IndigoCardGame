@@ -14,7 +14,8 @@ class Deck {
     }
 
     override fun toString(): String {
-        return deck.joinToString(" ")
+        return "Deck(Size: ${deck.size}, Contents: [${deck.joinToString(" ")}]\n" +
+                "Discard Pile(Size: ${discardPile.size}, Contents: [${discardPile.joinToString(" ")}]"
     }
 
     /**
@@ -50,7 +51,12 @@ class Deck {
         return if (deck.size < numberOfCards) {
             emptyList()
         } else {
-            deck.take(numberOfCards).also { discardPile.addAll(it) }
+            val removed = mutableListOf<Card>()
+            for (elem in 1..numberOfCards) {
+                removed.add(deck.removeFirst())
+            }
+            discardPile.addAll(removed)
+            return removed
         }
     }
 

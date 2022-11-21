@@ -18,11 +18,13 @@ class Game {
                 UserAction.RESET -> output.display(deck.reset())
                 UserAction.SHUFFLE -> output.display(deck.shuffle())
                 UserAction.GET -> with(input.getNumberOfCards()) {
-                    with(deck.get(this)) {
-                        if (this.isEmpty()) {
-                            output.display("The remaining cards are insufficient to meet the request.")
-                        } else {
-                            output.display(this.joinToString(" "))
+                    if (this > 0) {
+                        with(deck.get(this)) {
+                            if (this.isEmpty()) {
+                                output.display("The remaining cards are insufficient to meet the request.")
+                            } else {
+                                output.display(this.joinToString(" "))
+                            }
                         }
                     }
                 }
@@ -30,6 +32,7 @@ class Game {
                     output.display("Bye")
                     return
                 }
+                UserAction.PRINT_INTERNALS -> output.display(deck.toString())
             }
         } while(true)
     }
