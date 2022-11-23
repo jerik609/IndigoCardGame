@@ -60,4 +60,11 @@ class Deck {
         }
     }
 
+    fun getDiscardPileSize() = discardPile.size
+
+    fun getLastCardOnDiscardPile(): Card {
+        println("Status:\n${toString()}")
+        return discardPile.last()
+    }
+
 }

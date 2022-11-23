@@ -1,8 +1,14 @@
 package indigo
 
 import indigo.game.Game
+import indigo.game.Human
+import indigo.input.Input
+import indigo.output.Output
+import java.util.*
 
 fun main() {
-    val game = Game()
+    val output = Output()
+    val input = Input(Scanner(System.`in`), output)
+    val game = Game(Human("Human", input), input, output)
     game.playGame()
 }
