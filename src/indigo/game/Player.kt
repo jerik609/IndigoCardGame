@@ -9,7 +9,12 @@ abstract class Player(val name: String) {
         return hand.size
     }
 
-    fun playCard(number: Int): Card {
+    fun cardsInHandAsString(): String {
+        check(hand.isNotEmpty())
+        return "1)${hand.map { it.toString() }.reduceIndexed { index, accumulator, item -> "$accumulator ${index + 1})$item" }}"
+    }
+
+    open fun playCard(number: Int): Card {
         check(hand.isNotEmpty())
         return hand.removeAt(number - 1)
     }
@@ -17,4 +22,6 @@ abstract class Player(val name: String) {
     fun populateHand(cards: List<Card>) {
         hand.addAll(cards)
     }
+
+    abstract fun isInteractive(): Boolean
 }

@@ -55,16 +55,17 @@ class Deck {
             for (elem in 1..numberOfCards) {
                 removed.add(deck.removeFirst())
             }
-            discardPile.addAll(removed)
             return removed
         }
     }
 
+    fun putOnDiscardPile(cards: List<Card>) = discardPile.addAll(cards)
+
     fun getDiscardPileSize() = discardPile.size
 
-    fun getLastCardOnDiscardPile(): Card {
-        println("Status:\n${toString()}")
-        return discardPile.last()
-    }
+    fun getLastCardOnDiscardPileAsString() = getLastCardsOnDiscardPileAsString(1)
 
+    fun getLastCardsOnDiscardPileAsString(number: Int) = discardPile.takeLast(number).joinToString(" ")
+
+    fun getDeckSize() = deck.size
 }
