@@ -66,18 +66,24 @@ class Deck {
     fun tableSize() = table.size
 
     /**
+     * Get topmost card on table.
+     * @return the topmost card on table
+     */
+    fun getTopmostCardOnTable() = table.last()
+
+    /**
      * Display topmost card on table.
      * Used in output.
      * @return string representation of the topmost card on the table
      */
-    fun getLastCardOnTableAsString() = getLastCardsOnTableAsString(1)
+    fun getTopmostCardOnTableAsString() = getTopmostCardsOnTableAsString(1)
 
     /**
      * Return what's on the table in a string representation.
      * Used in output.
      * @return string representation of the table
      */
-    fun getLastCardsOnTableAsString(number: Int) = table.takeLast(number).joinToString(" ")
+    fun getTopmostCardsOnTableAsString(number: Int) = table.takeLast(number).joinToString(" ")
 
     /**
      * Return the two topmost cards from table.

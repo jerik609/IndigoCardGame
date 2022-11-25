@@ -9,6 +9,6 @@ import java.util.*
 fun main() {
     val output = Output()
     val input = Input(Scanner(System.`in`), output)
-    val game = Game(Human("Player"), input, output)
+    val game = Game(Human("Player", input, output), input, output)
     game.playGame()
 }

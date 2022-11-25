@@ -1,13 +1,14 @@
 package indigo.game
 
 import indigo.deck.Card
+import indigo.output.Output
 
-abstract class Player(val name: String,) {
+abstract class Player(val name: String) {
     var numberOfCardsWon: Int = 0
         private set
     var score: Int = 0
         private set
-    private val hand = mutableListOf<Card>()
+    protected val hand = mutableListOf<Card>() //TODO: should really use own class for The Hand :-)
 
     fun getHandSize(): Int {
         return hand.size
@@ -18,7 +19,9 @@ abstract class Player(val name: String,) {
         return "1)${hand.map { it.toString() }.reduceIndexed { index, accumulator, item -> "$accumulator ${index + 1})$item" }}"
     }
 
-    open fun playCard(number: Int): Card {
+    abstract fun playCard(card: Card?): Card?
+
+    protected fun playCard(number: Int): Card {
         check(hand.isNotEmpty())
         return hand.removeAt(number - 1)
     }
@@ -37,5 +40,4 @@ abstract class Player(val name: String,) {
         this.score += score
     }
 
-    abstract fun isInteractive(): Boolean
 }

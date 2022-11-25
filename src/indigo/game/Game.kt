@@ -15,7 +15,7 @@ class Game(private val player: Player, private val input: Input, private val out
     }
 
     private val deck = Deck()
-    private val computer = Computer()
+    private val computer = Computer(output)
 
     private var currentPlayer: Player = computer
     private var firstPlayer: Player = currentPlayer
@@ -79,7 +79,7 @@ class Game(private val player: Player, private val input: Input, private val out
 
         // initial cards on the table
         deck.putOnTable(deck.get(INITIAL_TABLE_SIZE))
-        output.display("Initial cards on the table: ${deck.getLastCardsOnTableAsString(INITIAL_TABLE_SIZE)}")
+        output.display("Initial cards on the table: ${deck.getTopmostCardsOnTableAsString(INITIAL_TABLE_SIZE)}")
 
         // play a game round
         do {
@@ -94,7 +94,7 @@ class Game(private val player: Player, private val input: Input, private val out
             // display game situation
             output.display(
                 if (deck.tableSize() == 0) "No cards on the table"
-                else "${deck.tableSize()} cards on the table, and the top card is ${deck.getLastCardOnTableAsString()}")
+                else "${deck.tableSize()} cards on the table, and the top card is ${deck.getTopmostCardOnTableAsString()}")
 
             // check whether game has finished
             if (deck.getDeckSize() == 0 && player.getHandSize() == 0 && computer.getHandSize() == 0) {
@@ -117,20 +117,11 @@ class Game(private val player: Player, private val input: Input, private val out
             }
 
             // current player plays a card
-            if (currentPlayer.isInteractive()) { // if (interactive) player's turn
-                output.display("Cards in hand: ${currentPlayer.cardsInHandAsString()}")
-                val cardNum = input.getNonNegativeNumberFromRange(
-                    1..currentPlayer.getHandSize(),
-                    "Choose a card to play (1-${currentPlayer.getHandSize()}):"
-                )
-                if (cardNum == Input.EXIT_SIGNAL) {
-                    break
-                } else {
-                    deck.putOnTable(listOf(currentPlayer.playCard(cardNum)))
-                }
-            } else { // if non-interactive (computer) player turn
-                val card = currentPlayer.playCard(if (currentPlayer.getHandSize() > 1) Random.nextInt(1, currentPlayer.getHandSize()) else 1)
-                output.display("${currentPlayer.name} plays $card")
+            val card = currentPlayer.playCard(deck.getTopmostCardOnTable())
+            if (card == null) {
+                // player chose "exit", game ends -> break out of the loop
+                break
+            } else {
                 deck.putOnTable(listOf(card))
             }
 
