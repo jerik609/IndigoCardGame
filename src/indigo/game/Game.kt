@@ -1,23 +1,25 @@
 package indigo.game
 
+import indigo.deck.Card
 import indigo.deck.Deck
+import indigo.deck.Rank
 import indigo.output.Output
 import indigo.input.Input
-import indigo.input.UserAction
-import java.util.*
 import kotlin.random.Random
 
 class Game(private val player: Player, private val input: Input, private val output: Output) {
 
     companion object {
-        const val INITIAL_DISCARD_PILE_SIZE = 4
+        const val INITIAL_PILE_SIZE = 4
         const val HAND_DEAL_SIZE = 6
     }
 
     private val deck = Deck()
-    private val computer = Computer(output)
+    private val computer = Computer()
 
     private var currentPlayer: Player = computer
+    private var firstPlayer: Player = currentPlayer
+    private var lastWinner: Player = currentPlayer
 
     private fun switchPlayer() {
         currentPlayer = if (currentPlayer === player) {
@@ -25,6 +27,41 @@ class Game(private val player: Player, private val input: Input, private val out
         } else {
             player
         }
+    }
+
+    /**
+     * Checks for win condition on the provided deck:
+     * If there are at least 2 cards on the pile, checks if their ranks or suits match.
+     * If they match, returns the contents of the pile and clears the pile.
+     * If there's no match or if the pile has less than 2 card, returns an empty list (= no win)
+     * @param deck a game deck
+     * @return list of "won" card or empty list if "no win"
+     */
+    private fun checkWin(deck: Deck): List<Card> {
+        with(deck.getTwoTopmostCardFromPileOrEmptyList()) {
+            if (this.size == 2) {
+                if (this[0].rank == this[1].rank || this[0].suit == this[1].suit) {
+                    return deck.getPileAndCleanIt()
+                }
+            }
+        }
+        return emptyList()
+    }
+
+    /**
+     * Calculates score of the provided list of cards
+     * @param cards the list of cards to calculate the score from
+     * @return the score as a pair: (number of cards, value of cards)
+     */
+    private fun calculateScore(cards: List<Card>): Pair<Int, Int> {
+        var score = 0
+        for (card in cards) {
+            when(card.rank) {
+                Rank.RANK_A, Rank.RANK_10, Rank.RANK_J, Rank.RANK_Q, Rank.RANK_K -> score += 1
+                else -> { /* nothing */ }
+            }
+        }
+        return Pair(cards.size, score)
     }
 
     fun playGame() {
@@ -35,11 +72,14 @@ class Game(private val player: Player, private val input: Input, private val out
             player
         } else {
             computer
+        }.also {
+            firstPlayer = it
+            lastWinner = it
         }
 
         // initial cards on the table
-        deck.putOnDiscardPile(deck.get(INITIAL_DISCARD_PILE_SIZE))
-        output.display("Initial cards on the table: ${deck.getLastCardsOnDiscardPileAsString(INITIAL_DISCARD_PILE_SIZE)}")
+        deck.putOnPile(deck.get(INITIAL_PILE_SIZE))
+        output.display("Initial cards on the table: ${deck.getLastCardsOnPileAsString(INITIAL_PILE_SIZE)}")
 
         // play a game round
         do {
@@ -49,7 +89,9 @@ class Game(private val player: Player, private val input: Input, private val out
             }
 
             // display game situation
-            output.display("${deck.getDiscardPileSize()} cards on the table, and the top card is ${deck.getLastCardOnDiscardPileAsString()}")
+            output.display(
+                if (deck.pileSize() == 0) "No cards on the table"
+                else "${deck.pileSize()} cards on the table, and the top card is ${deck.getLastCardOnPileAsString()}")
 
             // current player plays a card
             if (currentPlayer.isInteractive()) { // if (interactive) player's turn
@@ -61,20 +103,40 @@ class Game(private val player: Player, private val input: Input, private val out
                 if (cardNum == Input.EXIT_SIGNAL) {
                     break
                 } else {
-                    deck.putOnDiscardPile(listOf(currentPlayer.playCard(cardNum)))
+                    deck.putOnPile(listOf(currentPlayer.playCard(cardNum)))
                 }
             } else { // if non-interactive (computer) player turn
                 val card = currentPlayer.playCard(if (currentPlayer.getHandSize() > 1) Random.nextInt(1, currentPlayer.getHandSize()) else 1)
                 output.display("${currentPlayer.name} plays $card")
-                deck.putOnDiscardPile(listOf(card))
+                deck.putOnPile(listOf(card))
+            }
+
+            // check turn winner, calculate score and add to current players score
+            with(calculateScore(checkWin(deck))) {
+                if (this.first > 0) {
+                    output.display("${currentPlayer.name} wins cards")
+                    lastWinner = currentPlayer
+                    currentPlayer.addScore(this.first, this.second)
+                    output.display("Score: ${player.name} ${player.score} - ${computer.name} ${computer.score}")
+                    output.display("Cards: ${player.name} ${player.numberOfCardsWon} - ${computer.name} ${computer.numberOfCardsWon}")
+                }
             }
 
             // switch player to next one
             switchPlayer()
 
-            // check game finished
+            // check whether game has finished
             if (deck.getDeckSize() == 0 && player.getHandSize() == 0 && computer.getHandSize() == 0) {
-                output.display("${Deck.MAX_NUMBER_OF_CARDS_IN_DECK} cards on the table, and the top card is ${deck.getLastCardOnDiscardPileAsString()}")
+                // award score from remaining cards on the pile
+                val score = calculateScore(deck.getPileAndCleanIt())
+                lastWinner.addScore(score.first, score.second)
+
+                // assign extra points to player who won more cards
+                if (player.numberOfCardsWon > computer.numberOfCardsWon) player.addScore(0, 3)
+                else if (player.numberOfCardsWon < computer.numberOfCardsWon) computer.addScore(0, 3)
+                else firstPlayer.addScore(0, 3)
+
+                // break out of loop = game ends
                 break
             }
 
@@ -105,8 +167,9 @@ class Game(private val player: Player, private val input: Input, private val out
 //                UserAction.PRINT_INTERNALS -> output.display(deck.toString())
 //            }
 
-
         } while(true)
+        output.display("Score: ${player.name} ${player.score} - ${computer.name} ${computer.score}")
+        output.display("Cards: ${player.name} ${player.numberOfCardsWon} - ${computer.name} ${computer.numberOfCardsWon}")
         output.display("Game Over")
     }
 

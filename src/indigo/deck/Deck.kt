@@ -7,7 +7,7 @@ class Deck {
     }
 
     private val deck = mutableListOf<Card>()
-    private val discardPile = mutableListOf<Card>()
+    private val pile = mutableListOf<Card>()
 
     init {
         reset()
@@ -15,7 +15,7 @@ class Deck {
 
     override fun toString(): String {
         return "Deck(Size: ${deck.size}, Contents: [${deck.joinToString(" ")}]\n" +
-                "Discard Pile(Size: ${discardPile.size}, Contents: [${discardPile.joinToString(" ")}]"
+                "Pile(Size: ${pile.size}, Contents: [${pile.joinToString(" ")}]"
     }
 
     /**
@@ -23,7 +23,7 @@ class Deck {
      */
     fun reset(): String {
         deck.clear()
-        discardPile.clear()
+        pile.clear()
         for (suit in Suit.values()) {
             for (rank in Rank.values()) {
                 deck.add(Card(suit = suit, rank = rank))
@@ -59,13 +59,20 @@ class Deck {
         }
     }
 
-    fun putOnDiscardPile(cards: List<Card>) = discardPile.addAll(cards)
-
-    fun getDiscardPileSize() = discardPile.size
-
-    fun getLastCardOnDiscardPileAsString() = getLastCardsOnDiscardPileAsString(1)
-
-    fun getLastCardsOnDiscardPileAsString(number: Int) = discardPile.takeLast(number).joinToString(" ")
-
     fun getDeckSize() = deck.size
+
+    fun putOnPile(cards: List<Card>) = pile.addAll(cards)
+
+    fun pileSize() = pile.size
+
+    fun getLastCardOnPileAsString() = getLastCardsOnPileAsString(1)
+
+    fun getLastCardsOnPileAsString(number: Int) = pile.takeLast(number).joinToString(" ")
+
+    fun getTwoTopmostCardFromPileOrEmptyList(): List<Card> = if (pile.size < 2) emptyList() else pile.takeLast(2)
+
+    fun getPileAndCleanIt(): List<Card> {
+        return pile.take(pileSize()).also { pile.clear() }
+    }
+
 }
