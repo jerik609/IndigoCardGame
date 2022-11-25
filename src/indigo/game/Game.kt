@@ -10,7 +10,7 @@ import kotlin.random.Random
 class Game(private val player: Player, private val input: Input, private val output: Output) {
 
     companion object {
-        const val INITIAL_PILE_SIZE = 4
+        const val INITIAL_TABLE_SIZE = 4
         const val HAND_DEAL_SIZE = 6
     }
 
@@ -31,17 +31,17 @@ class Game(private val player: Player, private val input: Input, private val out
 
     /**
      * Checks for win condition on the provided deck:
-     * If there are at least 2 cards on the pile, checks if their ranks or suits match.
-     * If they match, returns the contents of the pile and clears the pile.
-     * If there's no match or if the pile has less than 2 card, returns an empty list (= no win)
+     * If there are at least 2 cards on the table, checks if their ranks or suits match.
+     * If they match, returns the contents of the table and clears the table.
+     * If there's no match or if the table has less than 2 card, returns an empty list (= no win)
      * @param deck a game deck
      * @return list of "won" card or empty list if "no win"
      */
     private fun checkWin(deck: Deck): List<Card> {
-        with(deck.getTwoTopmostCardFromPileOrEmptyList()) {
+        with(deck.getTwoTopmostCardFromTableOrEmptyList()) {
             if (this.size == 2) {
                 if (this[0].rank == this[1].rank || this[0].suit == this[1].suit) {
-                    return deck.getPileAndCleanIt()
+                    return deck.getTableAndCleanIt()
                 }
             }
         }
@@ -78,9 +78,8 @@ class Game(private val player: Player, private val input: Input, private val out
         }
 
         // initial cards on the table
-        deck.putOnPile(deck.get(INITIAL_PILE_SIZE))
-        output.display("Initial cards on the table: ${deck.getLastCardsOnPileAsString(INITIAL_PILE_SIZE)}")
-
+        deck.putOnTable(deck.get(INITIAL_TABLE_SIZE))
+        output.display("Initial cards on the table: ${deck.getLastCardsOnTableAsString(INITIAL_TABLE_SIZE)}")
 
         // play a game round
         do {
@@ -94,13 +93,14 @@ class Game(private val player: Player, private val input: Input, private val out
 
             // display game situation
             output.display(
-                if (deck.pileSize() == 0) "No cards on the table"
-                else "${deck.pileSize()} cards on the table, and the top card is ${deck.getLastCardOnPileAsString()}")
+                if (deck.tableSize() == 0) "No cards on the table"
+                else "${deck.tableSize()} cards on the table, and the top card is ${deck.getLastCardOnTableAsString()}")
 
             // check whether game has finished
             if (deck.getDeckSize() == 0 && player.getHandSize() == 0 && computer.getHandSize() == 0) {
-                // award score from remaining cards on the pile
-                val score = calculateScore(deck.getPileAndCleanIt())
+
+                // award score from remaining cards on the table
+                val score = calculateScore(deck.getTableAndCleanIt())
                 lastWinner.addScore(score.first, score.second)
 
                 // assign extra points to player who won more cards
@@ -112,7 +112,7 @@ class Game(private val player: Player, private val input: Input, private val out
                 output.display("Score: ${player.name} ${player.score} - ${computer.name} ${computer.score}")
                 output.display("Cards: ${player.name} ${player.numberOfCardsWon} - ${computer.name} ${computer.numberOfCardsWon}")
 
-                // break out of loop = game ends
+                // game ends -> break out of the loop
                 break
             }
 
@@ -126,12 +126,12 @@ class Game(private val player: Player, private val input: Input, private val out
                 if (cardNum == Input.EXIT_SIGNAL) {
                     break
                 } else {
-                    deck.putOnPile(listOf(currentPlayer.playCard(cardNum)))
+                    deck.putOnTable(listOf(currentPlayer.playCard(cardNum)))
                 }
             } else { // if non-interactive (computer) player turn
                 val card = currentPlayer.playCard(if (currentPlayer.getHandSize() > 1) Random.nextInt(1, currentPlayer.getHandSize()) else 1)
                 output.display("${currentPlayer.name} plays $card")
-                deck.putOnPile(listOf(card))
+                deck.putOnTable(listOf(card))
             }
 
             // check turn winner, calculate score and add to current players score

@@ -7,7 +7,7 @@ class Deck {
     }
 
     private val deck = mutableListOf<Card>()
-    private val pile = mutableListOf<Card>()
+    private val table = mutableListOf<Card>()
 
     init {
         reset()
@@ -15,7 +15,7 @@ class Deck {
 
     override fun toString(): String {
         return "Deck(Size: ${deck.size}, Contents: [${deck.joinToString(" ")}]\n" +
-                "Pile(Size: ${pile.size}, Contents: [${pile.joinToString(" ")}]"
+                "Table(Size: ${table.size}, Contents: [${table.joinToString(" ")}]"
     }
 
     /**
@@ -23,7 +23,7 @@ class Deck {
      */
     fun reset(): String {
         deck.clear()
-        pile.clear()
+        table.clear()
         for (suit in Suit.values()) {
             for (rank in Rank.values()) {
                 deck.add(Card(suit = suit, rank = rank))
@@ -42,7 +42,7 @@ class Deck {
     }
 
     /**
-     * Gets a card from deck - removes it from the deck and puts it on the discard pile.
+     * Returns a number of topmost cards from deck and removes them from the deck.
      * @param numberOfCards max number of cards to be taken from the deck
      * @return list of cards taken from deck
      */
@@ -61,18 +61,38 @@ class Deck {
 
     fun getDeckSize() = deck.size
 
-    fun putOnPile(cards: List<Card>) = pile.addAll(cards)
+    fun putOnTable(cards: List<Card>) = table.addAll(cards)
 
-    fun pileSize() = pile.size
+    fun tableSize() = table.size
 
-    fun getLastCardOnPileAsString() = getLastCardsOnPileAsString(1)
+    /**
+     * Display topmost card on table.
+     * Used in output.
+     * @return string representation of the topmost card on the table
+     */
+    fun getLastCardOnTableAsString() = getLastCardsOnTableAsString(1)
 
-    fun getLastCardsOnPileAsString(number: Int) = pile.takeLast(number).joinToString(" ")
+    /**
+     * Return what's on the table in a string representation.
+     * Used in output.
+     * @return string representation of the table
+     */
+    fun getLastCardsOnTableAsString(number: Int) = table.takeLast(number).joinToString(" ")
 
-    fun getTwoTopmostCardFromPileOrEmptyList(): List<Card> = if (pile.size < 2) emptyList() else pile.takeLast(2)
+    /**
+     * Return the two topmost cards from table.
+     * Used when evaluating if the last move has made the player wins the cards on the table.
+     * @return list of two topmost cards on table
+     */
+    fun getTwoTopmostCardFromTableOrEmptyList(): List<Card> = if (table.size < 2) emptyList() else table.takeLast(2)
 
-    fun getPileAndCleanIt(): List<Card> {
-        return pile.take(pileSize()).also { pile.clear() }
+    /**
+     * Return all cards from the table and remove everything from table.
+     * This is used when a player has won cards or game has finished, and we are awarding the remaining cards.
+     * @return list of cards which were on the table
+     */
+    fun getTableAndCleanIt(): List<Card> {
+        return table.take(tableSize()).also { table.clear() }
     }
 
 }
