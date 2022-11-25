@@ -69,7 +69,7 @@ class Deck {
      * Get topmost card on table.
      * @return the topmost card on table
      */
-    fun getTopmostCardOnTable() = table.last()
+    fun getTopmostCardOnTable() = table.lastOrNull()
 
     /**
      * Display topmost card on table.
