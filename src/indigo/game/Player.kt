@@ -1,7 +1,6 @@
 package indigo.game
 
 import indigo.deck.Card
-import indigo.output.Output
 
 abstract class Player(val name: String) {
     var numberOfCardsWon: Int = 0
