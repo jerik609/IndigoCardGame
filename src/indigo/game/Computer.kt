@@ -40,7 +40,7 @@ class Computer(private val output: Output): Player(name = "Computer") {
             } else if (cardsWithTheSameRank.isNotEmpty()) {
                 cardsWithTheSameRank.entries.random().value.random().first
             } else {
-                cards.mapIndexed { idx, crd -> Pair(idx, crd) }.random().first
+                cards.random().first
             }
         }
 
