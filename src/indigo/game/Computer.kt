@@ -67,7 +67,7 @@ class Computer(private val output: Output): Player(name = "Computer") {
         // create an indexed hand, because the logic is built around ranks and suits,
         // but we will need the card's index at the end
         val indexedHand = hand.mapIndexed { index, crd -> Pair(index, crd) }
-        output.display(hand.joinToString(" "))
+        //output.display(hand.joinToString(" "))
 
         // condition #1 - only one card in hand
         if (getHandSize() == 1) {
